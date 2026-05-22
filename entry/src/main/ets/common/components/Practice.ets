@@ -1,16 +1,22 @@
-import { OptionButton } from '../components/OptionButton';
-import { ResultDialog } from '../components/ResultDialog';
-import { StatItem } from '../components/StatItem';
-import { AnswerStatus } from '../enums/AnswerStatus';
-import { PracticeStatus } from '../enums/PracticeStatus';
-import { getRandomQuestion, Question } from '../model/Question';
+import { OptionButton } from './OptionButton';
+import { ResultDialog } from './ResultDialog';
+import { StatItem } from './StatItem';
+import {
+  ControlButtonStyleModifier,
+  PracticeBgStyleModifier,
+  SentenceStyleModifier,
+  StatBgStyleModifier,
+  WordStyleModifier
+} from '../styles/CommonStyles';
+import { AnswerStatus } from '../../enums/AnswerStatusEnum';
+import { PracticeStatus } from '../../enums/PracticeStatusEnum';
+import { getRandomQuestion, Question } from '../../model/Question';
 
 /**
  * 答题页面
  */
-@Entry
 @Component
-struct PracticePage {
+export struct PracticePage {
   // 状态
   @State practiceStatus: PracticeStatus = PracticeStatus.Stopped;
   @State currentIndex: number = 0;
@@ -119,7 +125,7 @@ struct PracticePage {
           fontColor: Color.Black
         }) {
           Row() {
-            TextTimer({controller: this.timerController})
+            TextTimer({ controller: this.timerController })
               .onTimer((_utc: number, elapsedTime: number) => {
                 this.timeUsed = elapsedTime
               })
@@ -127,13 +133,12 @@ struct PracticePage {
           .justifyContent(FlexAlign.Center)
         }
 
-
-      }.statBgStyle()
+      }.attributeModifier(new StatBgStyleModifier())
 
       // 题目
       Column({ space: 10 }) {
-        Text(this.questions[this.currentIndex].word).wordStyle()
-        Text(this.questions[this.currentIndex].sentence).sentenceStyle()
+        Text(this.questions[this.currentIndex].word).attributeModifier(new WordStyleModifier())
+        Text(this.questions[this.currentIndex].sentence).attributeModifier(new SentenceStyleModifier())
       }
 
       // 选项
@@ -178,88 +183,26 @@ struct PracticePage {
       // 底部
       Row({ space: 60 }) {
         Button('停止测试')
-          .controlButtonStyle({
+          .attributeModifier(new ControlButtonStyleModifier({
             bg: Color.Transparent,
             border: this.practiceStatus === PracticeStatus.Stopped ? Color.Gray : Color.Black,
             font: this.practiceStatus === PracticeStatus.Stopped ? Color.Gray : Color.Black,
-          })
+          }))
           .onClick(() => this.stopPractice())
           .enabled(this.practiceStatus !== PracticeStatus.Stopped)
 
         Button(this.practiceStatus === PracticeStatus.Running ? '暂停测试' : '开始测试')
-          .controlButtonStyle({
+          .attributeModifier(new ControlButtonStyleModifier({
             bg: this.practiceStatus === PracticeStatus.Running ? '#555555' : Color.Black,
             border: this.practiceStatus === PracticeStatus.Running ? '#555555' : Color.Black,
             font: Color.White,
-          })
+          }))
           .onClick(() => {
             this.practiceStatus === PracticeStatus.Running ? this.pausePractice() : this.startPractice()
           })
           .stateEffect(false)
       }
     }
-    .practiceBgStyle()
+    .attributeModifier(new PracticeBgStyleModifier())
   }
-}
-
-/**
- * 页面背景
- */
-@Extend(Column)
-function practiceBgStyle() {
-  .width('100%')
-  .height('100%')
-  .backgroundImage($r('app.media.img_practice_bg'))
-  .backgroundImageSize({ width: '100%', height: '100%' })
-  .justifyContent(FlexAlign.SpaceEvenly)
-}
-
-/**
- * 统计背景
- */
-@Styles
-function statBgStyle() {
-  .width('90%')
-  .borderRadius(10)
-  .backgroundColor(Color.White)
-}
-
-/**
- * 单词样式
- */
-@Extend(Text)
-function wordStyle() {
-  .fontSize(50)
-  .fontWeight(FontWeight.Bold)
-}
-
-/**
- * 句子样式
- */
-@Extend(Text)
-function sentenceStyle() {
-  .height(40)
-  .fontSize(16)
-  .fontColor('#9ba1a5')
-  .fontWeight(FontWeight.Medium)
-  .width('80%')
-  .textAlign(TextAlign.Center)
-}
-
-interface GeneratedTypeLiteralInterface_2 {
-  bg: ResourceColor; // 背景色
-  font: ResourceColor; // 字体颜色
-  border: ResourceColor;
-}
-
-/**
- * 控制按钮
- */
-@Extend(Button)
-function controlButtonStyle(color: GeneratedTypeLiteralInterface_2) {
-  .fontSize(16)
-  .borderWidth(1)
-  .backgroundColor(color.bg)
-  .borderColor(color.border)
-  .fontColor(color.font)
 }

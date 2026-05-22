@@ -1,5 +1,7 @@
-import { AnswerStatus } from "../enums/AnswerStatus";
-import { OptionStatus } from "../enums/OptionStatus";
+import { AnswerStatus } from "../../enums/AnswerStatusEnum";
+import { OptionStatus } from "../../enums/OptionStatusEnum";
+import { OptionButtonStyleI } from "../../types/OptionButtonStyle";
+import{ OptionButtonStyleModifier } from "../../common/styles/CommonStyles";
 
 @Component
 export struct OptionButton {
@@ -30,25 +32,26 @@ export struct OptionButton {
         return ({
           bg: Color.White,
           font: Color.Black
-        } as GeneratedTypeLiteralInterface_1)
+        } as OptionButtonStyleI)
       // 正确
       case OptionStatus.Right:
         return ({
           bg: '#1DBF7B',
           font: Color.White
-        } as GeneratedTypeLiteralInterface_1)
+        } as OptionButtonStyleI)
       // 错误
       case OptionStatus.Wrong:
         return ({
           bg: '#FA635F',
           font: Color.White
-        } as GeneratedTypeLiteralInterface_1)
+        } as OptionButtonStyleI)
     }
   }
 
   build() {
     Stack() {
-      Button(this.option).optionButtonStyle(this.getColor())
+      Button(this.option)
+        .attributeModifier(new OptionButtonStyleModifier(this.getColor()))
       if (this.optionStatus === OptionStatus.Right) {
         Image($r('app.media.ic_right'))
           .width(22)
@@ -63,27 +66,4 @@ export struct OptionButton {
 
     }.alignContent(Alignment.Start)
   }
-}
-
-/**
- * 选项按钮
- */
-interface GeneratedTypeLiteralInterface_1 {
-  bg: ResourceColor; // 背景色
-  font: ResourceColor; // 字体颜色
-}
-
-/**
- * 选项按钮
- */
-@Extend(Button)
-function optionButtonStyle(color: GeneratedTypeLiteralInterface_1) {
-  .width(240)
-  .height(48)
-  .fontSize(16)
-  .type(ButtonType.Normal)
-  .fontWeight(FontWeight.Medium)
-  .borderRadius(8)
-  .backgroundColor(color.bg)
-  .fontColor(color.font)
 }

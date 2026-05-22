@@ -1,4 +1,5 @@
-import { convertMillisecondsToTime } from "../utils/DateUtil"
+import { convertMillisecondsToTime } from "../../utils/DateUtil"
+import { ControlButtonStyleModifier } from "../styles/CommonStyles"
 import { StatItem } from "./StatItem"
 
 @CustomDialog
@@ -57,21 +58,21 @@ export struct ResultDialog {
         Divider()
 
         Row({ space: 60 }) {
-          Button('再来一局').controlButtonStyle({
+          Button('再来一局').attributeModifier(new ControlButtonStyleModifier({
             bg: Color.White,
             font: Color.Black,
             border: Color.Black
-          })
+          }))
             .onClick(() => {
               this.resetPractice()
               this.customDialogController.close()
               this.startPractice()
             })
-          Button('登录打卡').controlButtonStyle({
+          Button('登录打卡').attributeModifier(new ControlButtonStyleModifier({
             bg: Color.Black,
             font: Color.White,
             border: Color.Black
-          })
+          }))
             .onClick(() => {
               this.resetPractice()
               this.customDialogController.close()
@@ -87,22 +88,4 @@ export struct ResultDialog {
     .backgroundColor(Color.Transparent)
     .width('80%')
   }
-}
-
-interface GeneratedTypeLiteralInterface_2 {
-  bg: ResourceColor; // 背景色
-  font: ResourceColor; // 字体颜色
-  border: ResourceColor;
-}
-
-/**
- * 控制按钮
- */
-@Extend(Button)
-function controlButtonStyle(color: GeneratedTypeLiteralInterface_2) {
-  .fontSize(16)
-  .borderWidth(1)
-  .backgroundColor(color.bg)
-  .borderColor(color.border)
-  .fontColor(color.font)
 }

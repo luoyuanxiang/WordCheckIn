@@ -25,7 +25,7 @@ struct LoginPage {
           })
         Button(this.btnText)
           .enabled(!this.btnDisabled)
-          .onClick(() => {
+          .onClick(async () => {
             if (!this.phone) {
               try {
                 this.getUIContext().getPromptAction().showToast({
@@ -51,27 +51,24 @@ struct LoginPage {
                 this.btnText = '获取验证码';
               }
             }, 1000);
-            axios.get('http://localhost:3000/word/user/code', {
+            let res: AxiosResponse = await axios.get('http://localhost:3000/word/user/code', {
               params: {
                 phone: this.phone,
               },
             })
-              .then((res: AxiosResponse) => {
-                console.log('响应数据:', JSON.stringify(res.data));
-                if (res.data.code === 200) {
-                  this.code = res.data.data.code;
-                } else {
-                  this.getUIContext().getPromptAction().openToast({
-                    message: res.data.message,
-                    duration: 3000,
-                  });
-                }
-              }).catch(() => {
-            })
+            console.log('响应数据:', JSON.stringify(res.data));
+            if (res.data.code === 200) {
+              this.code = res.data.data;
+            } else {
+              this.getUIContext().getPromptAction().openToast({
+                message: res.data.message,
+                duration: 3000,
+              });
+            }
           })
       }
       Button('登录').width('100%')
-        .onClick(() => {
+        .onClick(async () => {
           if (!this.phone) {
             try {
               this.getUIContext().getPromptAction().showToast({
@@ -94,26 +91,25 @@ struct LoginPage {
             }
             return
           }
-          axios.post<LoginParams, AxiosResponse>('http://localhost:3000/word/user/login', {
+          let res: AxiosResponse = await axios.post<LoginParams, AxiosResponse>('http://localhost:3000/word/user/login', {
             phone: this.phone,
             code: this.code,
-          }).then((res: AxiosResponse) => {
-            console.log('响应数据:', JSON.stringify(res.data));
-            if (res.data.code === 200) {
-              this.getUIContext().getPromptAction().openToast({
-                message: '登录成功',
-                duration: 3000,
-              });
-              this.getUIContext().getRouter().pushUrl({
-                url: 'pages/Index',
-              });
-            } else {
-              this.getUIContext().getPromptAction().openToast({
-                message: res.data.message,
-                duration: 3000,
-              });
-            }
           })
+          console.log('响应数据:', JSON.stringify(res.data));
+          if (res.data.code === 200) {
+            this.getUIContext().getPromptAction().openToast({
+              message: '登录成功',
+              duration: 3000,
+            });
+            this.getUIContext().getRouter().pushUrl({
+              url: 'pages/Index',
+            });
+          } else {
+            this.getUIContext().getPromptAction().openToast({
+              message: res.data.message,
+              duration: 3000,
+            });
+          }
         })
     }.alignItems(HorizontalAlign.Center)
     .justifyContent(FlexAlign.Center)

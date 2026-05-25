@@ -1,3 +1,5 @@
+import { checkIn } from "../../api/Api"
+import { TOKEN_KEY } from "../../consts/Global"
 import { convertMillisecondsToTime } from "../../utils/DateUtil"
 import { ControlButtonStyleModifier } from "../styles/CommonStyles"
 import { StatItem } from "./StatItem"
@@ -8,6 +10,11 @@ export struct ResultDialog {
   rightCount: number = 0
   timeUsed: number = 0
   customDialogController: CustomDialogController
+
+  @StorageLink('currentTab') currentTab: number = 0
+
+  @StorageProp(TOKEN_KEY) token: string = ''
+
   resetPractice: () => void = () => {
   }
   startPractice: () => void = () => {
@@ -68,14 +75,34 @@ export struct ResultDialog {
               this.customDialogController.close()
               this.startPractice()
             })
-          Button('登录打卡').attributeModifier(new ControlButtonStyleModifier({
+          Button(this.token ? '立即打卡' : '登录打卡').attributeModifier(new ControlButtonStyleModifier({
             bg: Color.Black,
             font: Color.White,
             border: Color.Black
           }))
-            .onClick(() => {
+            .onClick(async () => {
               this.resetPractice()
               this.customDialogController.close()
+
+              if (this.token) {
+                // 立即打卡，然后跳转到圈子
+                await checkIn({
+                  rightCount: this.rightCount,
+                  answeredCount: this.answeredCount,
+                  timeUsed: this.timeUsed
+                })
+                this.getUIContext().getPromptAction().showToast({message: '打卡成功'})
+                this.currentTab = 1
+              } else {
+                this.getUIContext().getRouter().pushUrl({
+                  url: 'pages/LoginPage',
+                  params: {
+                    rightCount: this.rightCount,
+                    answeredCount: this.answeredCount,
+                    timeUsed: this.timeUsed
+                  }
+                }, () => {})
+              }
             })
         }
 

@@ -1,3 +1,9 @@
+import { TOKEN_KEY } from '../consts/Global'
+
+PersistentStorage.persistProp(TOKEN_KEY, '')
+
+AppStorage.setOrCreate('currentTab', 0)
+
 @Entry
 @Component
 struct SplashPage {

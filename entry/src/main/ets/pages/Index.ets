@@ -1,20 +1,22 @@
 import { TabIconStyleModifier, TabTitleStyleModifier } from '../common/styles/CommonStyles'
 import { PracticePage } from '../common/components/Practice'
+import { CheckInCircle } from '../common/components/CheckInCircle'
 
 @Entry
 @Component
 struct Index {
-  @State currentTab: number = 0
+
+  @StorageLink('currentTab') currentTab: number = 1
 
   build() {
-    Tabs() {
+    Tabs({ index: this.currentTab }) {
       TabContent() {
         PracticePage()
       }
       .tabBar(this.customTabBar($r('app.media.ic_practice'), $r('app.media.ic_practice_selected'), '答题', 0))
 
       TabContent() {
-        Text('圈子')
+        CheckInCircle()
       }
       .tabBar(this.customTabBar($r('app.media.ic_circle'), $r('app.media.ic_circle_selected'), '圈子', 1))
 

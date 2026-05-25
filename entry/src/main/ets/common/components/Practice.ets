@@ -24,8 +24,9 @@ export struct PracticePage {
   @State selectedOption: string = ''
   @State answeredCount: number = 0
   @State rightCount: number = 0 // 正确个数
-  @State totalCount: number = 3
+  @State totalCount: number = 20
   @State questions: Question[] = getRandomQuestion(this.totalCount);
+
   timerController: TextTimerController = new TextTimerController();
   timeUsed: number = 0
   customDialogController: CustomDialogController = new CustomDialogController({
@@ -108,7 +109,7 @@ export struct PracticePage {
             .enabled(this.practiceStatus === PracticeStatus.Stopped)
             .onClick(() => {
               this.getUIContext().showTextPickerDialog({
-                range: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'],
+                range: ['5', '10', '15', '20', '25', '30', '60', '90', '100'],
                 value: this.totalCount.toString(),
                 onAccept: (value: TextPickerResult) => {
                   this.totalCount = Number(value.value)

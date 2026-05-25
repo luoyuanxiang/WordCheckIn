@@ -2,18 +2,16 @@ import { AxiosResponse } from '@ohos/axios';
 import { sendCode, login, checkIn } from "../api/Api";
 import { TOKEN_KEY } from '../consts/Global';
 import { Result } from '../types/Result';
+import { emitter } from '@kit.BasicServicesKit';
 
 @Entry
 @Component
 struct LoginPage {
-
   @StorageLink(TOKEN_KEY) token: string = '';
-
   @State phone: string = '';
   @State code: string = '';
   @State btnDisabled: boolean = false;
   @State btnText: string = '获取验证码';
-
   @StorageLink('currentTab') currentTab: number = 0
 
   build() {
@@ -121,6 +119,7 @@ struct LoginPage {
                   timeUsed: params?.timeUsed
                 })
                 this.getUIContext().getPromptAction().showToast({ message: '打卡成功' })
+                emitter.emit({ eventId: 1 })
                 this.currentTab = 1
               }
               this.getUIContext().getRouter().back()

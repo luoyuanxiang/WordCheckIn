@@ -5,24 +5,16 @@ import { PostInfo, PostInfoDto } from "../../types/CheckIn"
 import { ResultPage, Result } from "../../types/Result"
 import { convertMillisecondsToTime } from "../../utils/DateUtil"
 import { StatItem } from "./StatItem"
+import { emitter } from "@kit.BasicServicesKit"
 
 @Component
 export struct CheckInCircle {
-  @State postInfoList: PostInfo[] = [new PostInfo({
-    id: 1,
-    postText: "既然选择远⽅，当不负⻘春，砥砺前⾏",
-    rightCount: 3,
-    answeredCount: 4,
-    timeUsed: 5747,
-    createTime: "2024-03-19 18:54:33",
-    likeCount: 1,
-    nickname: "138****8888",
-    avatarUrl: "https://oss.aliyuncs.com/aliyun_id_photo_bucket/default_handsome.jpg",
-    isLike: false
-  } as PostInfoDto)]
-  page: number = 1
-  total: number = 0
+  @State postInfoList: PostInfo[] = []
+  @State page: number = 1
+  @State total: number = 0
   @StorageProp(TOKEN_KEY) @Watch('onTokenChange') token: string = ''
+  scroller: Scroller = new Scroller()
+  @State isLoading: boolean = false
 
   onTokenChange() {
     this.getPostInfoPage()
@@ -31,7 +23,7 @@ export struct CheckInCircle {
   async getPostInfoPage() {
     if (this.token) {
       const res: AxiosResponse<Result<ResultPage<PostInfo>>> = await getCheckInInfoList(this.page)
-      this.postInfoList = res.data.data?.records || []
+      res.data.data?.records.forEach(item => this.postInfoList.push(item))
       this.total = res.data.data?.total || 0
       this.page++
     } else {
@@ -41,8 +33,20 @@ export struct CheckInCircle {
     }
   }
 
+  refresh() {
+    this.isLoading = true
+    this.page = 1
+    this.postInfoList = []
+    this.total = 0
+    this.getPostInfoPage()
+    this.isLoading = false
+  }
+
   aboutToAppear(): void {
     this.getPostInfoPage()
+    emitter.on({ eventId: 1 }, () => {
+      this.refresh()
+    })
   }
 
   build() {
@@ -62,13 +66,33 @@ export struct CheckInCircle {
 
       if (this.token) {
         // 打卡列表
-        this.listBuilder()
+        if (this.isLoading) {
+          this.loadingBuilder()
+        } else {
+          this.listBuilder()
+        }
       } else {
         this.unLoginBuilder()
       }
 
     }.height('100%')
     .width('100%')
+  }
+
+  @Builder
+  loadingBuilder() {
+    Column({ space: 10 }) {
+      Image($r('app.media.ic_loading'))
+        .width(30)
+        .height(30)
+
+      Text('加载中...')
+        .fontSize(16)
+        .fontWeight(FontWeight.Medium)
+        .fontColor('#7e8892')
+    }.width('100%')
+    .layoutWeight(1)
+    .justifyContent(FlexAlign.Center)
   }
 
   @Builder
@@ -103,7 +127,7 @@ export struct CheckInCircle {
   @Builder
   listBuilder() {
     Stack() {
-      List() {
+      List({ scroller: this.scroller }) {
         ForEach(this.postInfoList, (post: PostInfo) => {
           ListItem() {
             PostItem({ post: post })
@@ -113,7 +137,7 @@ export struct CheckInCircle {
       .height('100%')
       .alignListItem(ListItemAlign.Center)
       .onReachEnd(() => {
-        if (this.postInfoList.length < this.total) {
+        if (this.total != 0 && (this.postInfoList.length < this.total)) {
           this.getPostInfoPage()
         } else {
           this.getUIContext().getPromptAction().showToast({ message: '没有更多数据了' })
@@ -131,7 +155,7 @@ export struct CheckInCircle {
         .backgroundColor(Color.Black)
         .opacity(0.5)
         .onClick(() => {
-          //todo: 返回顶部
+          this.scroller.scrollToIndex(0)
         })
 
         Button({ type: ButtonType.Circle }) {
@@ -144,7 +168,7 @@ export struct CheckInCircle {
         .backgroundColor(Color.Black)
         .opacity(0.5)
         .onClick(() => {
-          //todo:
+          this.refresh()
         })
       }
       .offset({ x: -20, y: -50 })
@@ -186,7 +210,6 @@ struct PostItem {
         .width('100%')
 
       // 统计部分
-
       Row() {
         Column() {
           StatItem({
@@ -237,9 +260,13 @@ struct PostItem {
             .onClick(async () => {
               try {
                 if (this.post.isLike) {
+                  this.post.likeCount--
+                  this.post.isLike = false
                   await deleteLike(this.post.id.toString())
                   this.getUIContext().getPromptAction().showToast({ message: '取消点赞成功' })
                 } else {
+                  this.post.isLike = true
+                  this.post.likeCount++
                   await createLike(this.post.id.toString())
                   this.getUIContext().getPromptAction().showToast({ message: '点赞成功' })
                 }

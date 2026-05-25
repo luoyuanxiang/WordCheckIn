@@ -3,6 +3,7 @@ import { TOKEN_KEY } from "../../consts/Global"
 import { convertMillisecondsToTime } from "../../utils/DateUtil"
 import { ControlButtonStyleModifier } from "../styles/CommonStyles"
 import { StatItem } from "./StatItem"
+import { emitter } from "@kit.BasicServicesKit"
 
 @CustomDialog
 export struct ResultDialog {
@@ -10,11 +11,8 @@ export struct ResultDialog {
   rightCount: number = 0
   timeUsed: number = 0
   customDialogController: CustomDialogController
-
   @StorageLink('currentTab') currentTab: number = 0
-
   @StorageProp(TOKEN_KEY) token: string = ''
-
   resetPractice: () => void = () => {
   }
   startPractice: () => void = () => {
@@ -91,7 +89,8 @@ export struct ResultDialog {
                   answeredCount: this.answeredCount,
                   timeUsed: this.timeUsed
                 })
-                this.getUIContext().getPromptAction().showToast({message: '打卡成功'})
+                this.getUIContext().getPromptAction().showToast({ message: '打卡成功' })
+                emitter.emit({ eventId: 1 })
                 this.currentTab = 1
               } else {
                 this.getUIContext().getRouter().pushUrl({
@@ -101,7 +100,8 @@ export struct ResultDialog {
                     answeredCount: this.answeredCount,
                     timeUsed: this.timeUsed
                   }
-                }, () => {})
+                }, () => {
+                })
               }
             })
         }

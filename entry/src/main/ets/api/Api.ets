@@ -1,5 +1,5 @@
 import { AxiosResponse } from "@ohos/axios";
-import { CheckInFormDto, PostInfo } from "../types/CheckIn";
+import { CheckInFormDto, PostInfo, PostInfoDto } from "../types/CheckIn";
 import { LoginFormDto } from "../types/LoginFormDto";
 import { Result, ResultPage } from "../types/Result";
 import { UserInfo } from "../types/UserInfo";
@@ -39,7 +39,7 @@ export function getCheckInInfoList(page: number, size: number = 10): Promise<Axi
 /**
  * 获取签到信息列表-我
  */
-export function getMyCheckInInfoList(page: number, size: number = 10): Promise<AxiosResponse<Result<ResultPage<PostInfo>>>> {
+export function getMyCheckInInfoList(page: number, size: number = 10): Promise<AxiosResponse<Result<ResultPage<PostInfoDto>>>> {
   return instance.get('/word/post/getMine', { params: { page, size } })
 }
 
@@ -47,7 +47,7 @@ export function getMyCheckInInfoList(page: number, size: number = 10): Promise<A
  * 获取用户信息
  */
 export function getUserInfo(): Promise<AxiosResponse<Result<UserInfo>>> {
-  return instance.get('/word/user/get')
+  return instance.get('/word/user/info')
 }
 
 /**

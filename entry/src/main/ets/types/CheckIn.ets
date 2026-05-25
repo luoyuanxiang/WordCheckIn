@@ -18,7 +18,7 @@ export interface PostInfoDto {
 }
 
 @Observed
-export class PostInfo implements PostInfoDto {
+export class PostInfo {
 
   id: number //
   postText: string // 打卡文案

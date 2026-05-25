@@ -1,12 +1,13 @@
 import { TabIconStyleModifier, TabTitleStyleModifier } from '../common/styles/CommonStyles'
 import { PracticePage } from '../common/components/Practice'
 import { CheckInCircle } from '../common/components/CheckInCircle'
+import { MinePage } from '../common/components/MinePage'
 
 @Entry
 @Component
 struct Index {
 
-  @StorageLink('currentTab') currentTab: number = 1
+  @StorageLink('currentTab') currentTab: number = 2
 
   build() {
     Tabs({ index: this.currentTab }) {
@@ -21,7 +22,7 @@ struct Index {
       .tabBar(this.customTabBar($r('app.media.ic_circle'), $r('app.media.ic_circle_selected'), '圈子', 1))
 
       TabContent() {
-        Text('我的')
+        MinePage()
       }.tabBar(this.customTabBar($r('app.media.ic_mine'), $r('app.media.ic_mine_selected'), '我的', 2))
 
     }.barPosition(BarPosition.End)
